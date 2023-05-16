@@ -17,14 +17,17 @@ def dt_eucly(xa, ya, xb, yb):
 def gaussian_function(x, sig):
     return (1 / (sig * np.sqrt(2 * np.pi))) * np.exp(- (x ** 2) / (2 * sig ** 2))
 
-img = extraction_image("data/falaise.jpg")
+img = extraction_image("../data/falaise.jpg")
 
 
-img_3 = np.array(Image.open("data/falaise.jpg").convert('L'))
+img_3 = np.array(Image.open("../data/falaise.jpg").convert('L'))
 
 
 col = img.shape[1]
 row = img.shape[0]
+
+print("Colonnes :", col, "\n")
+print("Lignes :", row, "\n")
 
 sig_s = 4
 sig_r = 0.15
