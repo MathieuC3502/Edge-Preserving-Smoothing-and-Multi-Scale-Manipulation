@@ -136,21 +136,17 @@ def WLSFilter(epsilon,alpha,lbda,img):
     # Generation of the Lg matrix
     #---------------------------------------------------------------
 
-    LgR=(ssp.csr_matrix.transpose(DX)@AX@DX)+(ssp.csr_matrix.transpose(DY)@AY@DY)
-    LgG=(ssp.csr_matrix.transpose(DX)@AX@DX)+(ssp.csr_matrix.transpose(DY)@AY@DY)
-    LgB=(ssp.csr_matrix.transpose(DX)@AX@DX)+(ssp.csr_matrix.transpose(DY)@AY@DY)
+    Lg=(ssp.csr_matrix.transpose(DX)@AX@DX)+(ssp.csr_matrix.transpose(DY)@AY@DY)
 
     #---------------------------------------------------------------
     # Reconstruction of the image
     #---------------------------------------------------------------
 
-    HR=Id+(lbda*LgR)
-    HG=Id+(lbda*LgG)
-    HB=Id+(lbda*LgB)
+    H=Id+(lbda*Lg)
 
-    New_Img_R=ssp.linalg.spsolve(HR,np.transpose(img_vec[:,:,0]))
-    New_Img_G=ssp.linalg.spsolve(HG,np.transpose(img_vec[:,:,1]))
-    New_Img_B=ssp.linalg.spsolve(HB,np.transpose(img_vec[:,:,2]))
+    New_Img_R=ssp.linalg.spsolve(H,np.transpose(img_vec[:,:,0]))
+    New_Img_G=ssp.linalg.spsolve(H,np.transpose(img_vec[:,:,1]))
+    New_Img_B=ssp.linalg.spsolve(H,np.transpose(img_vec[:,:,2]))
 
     New_Img=np.zeros([1,nbr_pix,3])
     New_Img[:,:,0]=(1/255)*New_Img_R
@@ -159,23 +155,23 @@ def WLSFilter(epsilon,alpha,lbda,img):
 
     New_Img=New_Img.reshape([row,col,3])
     
-    return New_Img,DX,DY
+    return New_Img,ax,ay
 
 #---------------------------------------------------------------
 
-#img = extraction_image("../data/falaise.jpg")
-img=np.zeros((3,3,3))
-img[:,:,0]=np.array([[1,1,3],[4,5,6],[255,255,255]])
-img[:,:,1]=np.array([[1,2,3],[4,5,6],[255,255,255]])
-img[:,:,2]=np.array([[1,2,3],[4,5,6],[255,255,255]])
+img = extraction_image("../data/falaise.jpg")
+# img=np.zeros((3,3,3))
+# img[:,:,0]=np.array([[1,1,3],[4,5,6],[255,255,255]])
+# img[:,:,1]=np.array([[1,2,3],[4,5,6],[255,255,255]])
+# img[:,:,2]=np.array([[1,2,3],[4,5,6],[255,255,255]])
 
 
-New_Img,DX,DY=WLSFilter(epsilon, alpha, lbda, img)
+New_Img,ax,ay=WLSFilter(epsilon, alpha, lbda, img)
 
-print(ssp.csr_matrix.toarray(DX))
-print("\n")
-print(ssp.csr_matrix.toarray(DY))
-print("\n")
+# print(ssp.csr_matrix.toarray(DX))
+# print("\n")
+# print(ssp.csr_matrix.toarray(DY))
+# print("\n")
 
 
 ax1=plt.subplot(122)
