@@ -33,11 +33,11 @@ def extraction_image(nomFichier):
 
 # Definition of the forward difference operators
 
-def deriveur_x(img_rgb,plane,i,j):
-    return abs((2*img[i,j,plane])-img[i-1,j,plane]-img[i+1,j,plane])
+def deriveur_x(img,i,j):
+    return abs((2*img[i,j])-img[i-1,j]-img[i+1,j])
 
-def deriveur_y(img_rgb,plane,i,j):
-    return abs((2*img[i,j,plane])-img[i,j-1,plane]-img[i,j+1,plane])
+def deriveur_y(img,i,j):
+    return abs((2*img[i,j])-img[i,j-1]-img[i,j+1])
 
 #---------------------------------------------------------------
 
@@ -45,7 +45,7 @@ def deriveur_y(img_rgb,plane,i,j):
 
 epsilon=0.0001
 alpha=1.6
-lbda=100
+lbda=1.2
 
 def WLSFilter(epsilon,alpha,lbda,img):
     col = img.shape[1]
@@ -64,22 +64,17 @@ def WLSFilter(epsilon,alpha,lbda,img):
     # Calculation of the ax coefficients
     #---------------------------------------------------------------
 
-    ax=np.zeros([row,col,3])
-    ay=np.zeros([col,row,3])
+    ax=np.zeros([row,col])
+    ay=np.zeros([col,row])
 
     for i in range(1,row-1):
         for j in range(1,col-1):
-            ax[i,j,0]=((deriveur_x(img,0,i,j)**alpha)+epsilon)**-1
-            ay[j,i,0]=((deriveur_y(img,0,i,j)**alpha)+epsilon)**-1
-            
-            ax[i,j,1]=((deriveur_x(img,1,i,j)**alpha)+epsilon)**-1
-            ay[j,i,1]=((deriveur_y(img,1,i,j)**alpha)+epsilon)**-1
-            
-            ax[i,j,2]=((deriveur_x(img,2,i,j)**alpha)+epsilon)**-1
-            ay[j,i,2]=((deriveur_y(img,0,i,j)**alpha)+epsilon)**-1
-            
-    ax_vec=ax.reshape(1,nbr_pix,3)
-    ay_vec=ay.reshape(1,nbr_pix,3)
+            ax[i,j]=((deriveur_x(l,i,j)**alpha)+epsilon)**-1
+            ay[j,i]=((deriveur_y(l,i,j)**alpha)+epsilon)**-1
+        
+    ay=ay.transpose()
+    ax_vec=ax.reshape(1,nbr_pix)
+    ay_vec=ay.reshape(1,nbr_pix)
     img_vec=img.reshape(1,nbr_pix,3)
 
     #---------------------------------------------------------------
@@ -132,24 +127,18 @@ def WLSFilter(epsilon,alpha,lbda,img):
     # Generation of the AX and AY matrixes
     #---------------------------------------------------------------
 
-    AXR=ssp.diags(ax_vec[:,:,0],[0])
-    AYR=ssp.diags(ay_vec[:,:,0],[0])
+    AX=ssp.diags(ax_vec,[0])
+    AY=ssp.diags(ay_vec,[0])
 
-    AXG=ssp.diags(ax_vec[:,:,1],[0])
-    AYG=ssp.diags(ay_vec[:,:,1],[0])
-
-    AXB=ssp.diags(ax_vec[:,:,2],[0])
-    AYB=ssp.diags(ay_vec[:,:,2],[0])
-
-    Id=ssp.identity(AXB.shape[1])
+    Id=ssp.identity(AX.shape[1])
 
     #---------------------------------------------------------------
     # Generation of the Lg matrix
     #---------------------------------------------------------------
 
-    LgR=(ssp.csr_matrix.transpose(DX)@AXR@DX)+(ssp.csr_matrix.transpose(DY)@AYR@DY)
-    LgG=(ssp.csr_matrix.transpose(DX)@AXG@DX)+(ssp.csr_matrix.transpose(DY)@AYG@DY)
-    LgB=(ssp.csr_matrix.transpose(DX)@AXB@DX)+(ssp.csr_matrix.transpose(DY)@AYB@DY)
+    LgR=(ssp.csr_matrix.transpose(DX)@AX@DX)+(ssp.csr_matrix.transpose(DY)@AY@DY)
+    LgG=(ssp.csr_matrix.transpose(DX)@AX@DX)+(ssp.csr_matrix.transpose(DY)@AY@DY)
+    LgB=(ssp.csr_matrix.transpose(DX)@AX@DX)+(ssp.csr_matrix.transpose(DY)@AY@DY)
 
     #---------------------------------------------------------------
     # Reconstruction of the image
@@ -170,13 +159,24 @@ def WLSFilter(epsilon,alpha,lbda,img):
 
     New_Img=New_Img.reshape([row,col,3])
     
-    return New_Img
+    return New_Img,DX,DY
 
 #---------------------------------------------------------------
 
-img = extraction_image("../data/falaise.jpg")
+#img = extraction_image("../data/falaise.jpg")
+img=np.zeros((3,3,3))
+img[:,:,0]=np.array([[1,1,3],[4,5,6],[255,255,255]])
+img[:,:,1]=np.array([[1,2,3],[4,5,6],[255,255,255]])
+img[:,:,2]=np.array([[1,2,3],[4,5,6],[255,255,255]])
 
-New_Img=WLSFilter(epsilon, alpha, lbda, img)
+
+New_Img,DX,DY=WLSFilter(epsilon, alpha, lbda, img)
+
+print(ssp.csr_matrix.toarray(DX))
+print("\n")
+print(ssp.csr_matrix.toarray(DY))
+print("\n")
+
 
 ax1=plt.subplot(122)
 ax1.imshow(New_Img)
