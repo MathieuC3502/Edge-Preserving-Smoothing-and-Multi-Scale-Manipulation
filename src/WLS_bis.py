@@ -171,7 +171,8 @@ def WLSFilter(epsilon,alpha,lbda,img):
 
 #---------------------------------------------------------------
 
-img = extraction_image("../data/falaise.jpg")
+img = extraction_image("../data/Test1.png")
+img=img[:,:,:3]   #Use only for image "test1.png"
 # img=np.array([[[5,5,3],[4,5,6],[25,25,255]],
             #   [[2,5,3],[4,5,6],[5,55,25]],
             #   [[71,4,3],[4,54,6],[255,25,255]],

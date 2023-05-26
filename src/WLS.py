@@ -130,6 +130,8 @@ def WLSFilter(epsilon,alpha,lbda,img):
     # Generation of the AX and AY matrixes
     #---------------------------------------------------------------
 
+    ax_vec=np.ones([1,ax_vec.shape[1]])
+    ay_vec=np.ones([1,ay_vec.shape[1]])
     AX=ssp.diags(ax_vec,[0])
     AY=ssp.diags(ay_vec,[0])
 
@@ -162,8 +164,10 @@ def WLSFilter(epsilon,alpha,lbda,img):
 
 #---------------------------------------------------------------
 
-img = extraction_image("../data/landscape.jpg")
-# img=img[:,:,:3]     #Use only for "Test1.png"
+img = extraction_image("../data/Test1.png")
+row=img.shape[0]
+col=img.shape[1]
+img=img[:,:row,:3]   #Use only for image "test1.png"
 # img=np.zeros((3,3,3))
 # img[:,:,0]=np.array([[1,1,3],[4,5,6],[255,255,255]])
 # img[:,:,1]=np.array([[1,2,3],[4,5,6],[255,255,255]])
@@ -176,7 +180,6 @@ New_Img,ax,ay=WLSFilter(epsilon, alpha, lbda, img)
 # print("\n")
 # print(ssp.csr_matrix.toarray(DY))
 # print("\n")
-
 
 ax1=plt.subplot(122)
 ax1.imshow(New_Img)

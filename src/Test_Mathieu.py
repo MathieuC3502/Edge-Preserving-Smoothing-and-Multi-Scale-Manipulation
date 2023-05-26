@@ -134,8 +134,8 @@ def WLSFilter(epsilon,alpha,lbda,img):
     # Generation of the AX and AY matrixes
     #---------------------------------------------------------------
 
-    # ax_vec=(1/(epsilon))*np.ones([1,ax_vec.shape[1]])
-    # ay_vec=(1/(epsilon))*np.ones([1,ay_vec.shape[1]])
+    ax_vec=np.ones([1,ax_vec.shape[1]])
+    ay_vec=np.ones([1,ay_vec.shape[1]])
     AX=ssp.diags(ax_vec,[0])
     AY=ssp.diags(ay_vec,[0])
 
@@ -173,7 +173,7 @@ def WLSFilter(epsilon,alpha,lbda,img):
 
 #---------------------------------------------------------------
 
-img = extraction_image("../data/test1.png")
+img = extraction_image("../data/Test1.png")
 img=img[:,:,:3]   #Use only for image "test1.png"
 # img=np.zeros((3,4,3))
 # img[:,:,0]=np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0]])
