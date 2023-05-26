@@ -45,12 +45,14 @@ def deriveur_y(img,i,j):
 
 epsilon=0.0001
 alpha=1.6
-lbda=1.2
+lbda=10
 
 def WLSFilter(epsilon,alpha,lbda,img):
     col = img.shape[1]
     row = img.shape[0]
     nbr_pix=col*row
+    print(row)
+    print(col)
 
     Y=np.array(luminance(img))      # Luminance plane of the image
     l=np.zeros(Y.shape)             # Log-Luminance plane of the image
@@ -75,7 +77,8 @@ def WLSFilter(epsilon,alpha,lbda,img):
     ay=ay.transpose()
     ax_vec=ax.reshape(1,nbr_pix)
     ay_vec=ay.reshape(1,nbr_pix)
-    img_vec=img.reshape(1,nbr_pix,3)
+    print(img.shape)
+    img_vec=img.reshape([1,nbr_pix,3])
 
     #---------------------------------------------------------------
     # Generation of the Dx matrix
@@ -159,7 +162,8 @@ def WLSFilter(epsilon,alpha,lbda,img):
 
 #---------------------------------------------------------------
 
-img = extraction_image("../data/falaise.jpg")
+img = extraction_image("../data/landscape.jpg")
+# img=img[:,:,:3]     #Use only for "Test1.png"
 # img=np.zeros((3,3,3))
 # img[:,:,0]=np.array([[1,1,3],[4,5,6],[255,255,255]])
 # img[:,:,1]=np.array([[1,2,3],[4,5,6],[255,255,255]])
