@@ -51,8 +51,6 @@ def WLSFilter(epsilon,alpha,lbda,img):
     col = img.shape[1]
     row = img.shape[0]
     nbr_pix=col*row
-    print(row)
-    print(col)
 
     Y=np.array(luminance(img))      # Luminance plane of the image
     l=np.zeros(Y.shape)             # Log-Luminance plane of the image
