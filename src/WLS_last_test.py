@@ -45,10 +45,17 @@ def deriveur_y(img,i,j):
 
 epsilon=0.0001
 alpha=1.6
-lbda=3
+lbda=10
 
 def WLSFilter(epsilon,alpha,lbda,img):
     (row, col, RGB) = img.shape
+    plt.figure("Image Ordered")
+    plt.imshow(img)
+    plt.title("INITAIAL Smoothed Image")
+    img_t = img.transpose(1, 0, 2)
+    plt.figure("Image OKDZ?rdered")
+    plt.imshow(img_t)
+    plt.title("INITAIAL Smoothed kjoImage")
     nbr_pix=col*row
     logY = np.log(luminance(img) + np.ones((row, col)))
             
@@ -63,10 +70,11 @@ def WLSFilter(epsilon,alpha,lbda,img):
         for j in range(0,col-1):
             ax[i,j]=((deriveur_x(logY,i,j)**alpha)+epsilon)**-1
             ay[i,j]=((deriveur_y(logY,i,j)**alpha)+epsilon)**-1
-    # ay = ay.transpose()
+    ay = ay.transpose()
     ax_vec=ax.reshape(nbr_pix, 1)
     ay_vec=ay.reshape(nbr_pix, 1)
     img_vec=img.reshape(1, nbr_pix, 3)
+    img_vec_t=img_t.reshape(1, nbr_pix, 3)
 
     #---------------------------------------------------------------
     # Generation of the Dx matrix
@@ -78,53 +86,6 @@ def WLSFilter(epsilon,alpha,lbda,img):
     base=ssp.diags(diagonals,[0,1],shape=(nbr_pix, nbr_pix))
     base=ssp.csr_matrix(base)
 
-    # basey = ssp.diags(diagonals,[0,row],shape=(nbr_pix, nbr_pix))
-    # basey = ssp.csr_matrix(basey)
-    # main_diag=np.ones((1,col-1))
-    # side_diag=-1*(np.ones((1,col-1)))
-    # diagonals=np.array([main_diag,side_diag])
-    # base=ssp.diags(diagonals,[0,1],shape=(col-1,col))
-
-    # DX=base
-    # DX=ssp.csr_matrix(DX)
-    # DX._shape = (DX.shape[0]+1,DX.shape[1])
-    # DX.indptr = np.hstack((DX.indptr,DX.indptr[-1]))
-
-    # for i in range(row-1):
-    #     DX=ssp.bmat([[DX,None],[None,base]])
-    #     DX=ssp.csr_matrix(DX)
-    #     DX._shape = (DX.shape[0]+1,DX.shape[1])
-    #     DX.indptr = np.hstack((DX.indptr,DX.indptr[-1]))
-
-    # print("Taille DX: " + str(DX.shape))
-
-    #---------------------------------------------------------------
-    # Generation of the Dy matrix
-    #---------------------------------------------------------------
-
-    # main_diagy=np.ones((1,col-1))
-    # side_diagy=-1*(np.ones((1,col-1)))
-    # diagonalsy=np.array([main_diagy,side_diagy])
-    # basey=ssp.diags(diagonalsy,[0,1],shape=(nbr_pix, nbr_pix))
-
-    # DY=basey
-
-    #A way to add a row of zeros at the bottom of a sparse matrix
-    #Source : https://stackoverflow.com/questions/4695337/expanding-adding-a-row-or-column-a-scipy-sparse-matrix
-    # DY=ssp.csr_matrix(DY)
-    # DY._shape = (DY.shape[0]+1,DY.shape[1])
-    # DY.indptr = np.hstack((DY.indptr,DY.indptr[-1]))
-
-    # for i in range(col-1):
-    #     DY=ssp.bmat([[DY,None],[None,basey]])
-    #     DY=ssp.csr_matrix(DY)
-    #     DY._shape = (DY.shape[0]+1,DY.shape[1])
-    #     DY.indptr = np.hstack((DY.indptr,DY.indptr[-1]))
-    # print("Taille DY: " + str(DY.shape))
-    # #---------------------------------------------------------------
-    # # Generation of the AX and AY matrixes
-    # #---------------------------------------------------------------
-
     AX=ssp.diags(ax_vec.transpose(),[0])
     AY=ssp.diags(ay_vec.transpose(),[0])
     AY=ssp.csr_matrix(AY)
@@ -133,43 +94,44 @@ def WLSFilter(epsilon,alpha,lbda,img):
     Id=ssp.identity(AX.shape[1])
 
     #---------------------------------------------------------------
-    # Generation of the Lg matrixs
+    # Generation of the Lg matrix
     #---------------------------------------------------------------
 
-    Lg=(ssp.csr_matrix.transpose(base)@AX@base) #+ (ssp.csr_matrix.transpose(basey)@AY@basey)
-    # Lg=(ssp.csr_matrix.transpose(DX)@AX@DX) + (ssp.csr_matrix.transpose(DY)@AY@DY)
+    Lgx=(ssp.csr_matrix.transpose(base)@AX@base)
 
     #---------------------------------------------------------------
     # Reconstruction of the image
     #---------------------------------------------------------------
 
-    H=Id +(lbda*Lg)
+    H1= Id + lbda*Lgx
+    # H2 = lbda * Lgy
     img_r = np.transpose(img_vec[:,:,0])
     img_g = np.transpose(img_vec[:,:,1])
     img_b = np.transpose(img_vec[:,:,2])
-    New_Img_R=ssp.linalg.spsolve(H,img_r)
-    New_Img_G=ssp.linalg.spsolve(H,img_g)
-    New_Img_B=ssp.linalg.spsolve(H,img_b)
+    img_r_t = np.transpose(img_vec_t[:,:,0])
+    img_g_t = np.transpose(img_vec_t[:,:,1])
+    img_b_t = np.transpose(img_vec_t[:,:,2])
+
+    New_Img_R=ssp.linalg.spsolve(H1,img_r)
+    New_Img_G=ssp.linalg.spsolve(H1,img_g)
+    New_Img_B=ssp.linalg.spsolve(H1,img_b)
+
     New_Img=np.zeros([1,nbr_pix,3])
-    New_Img[:,:,0]=New_Img_R
-    New_Img[:,:,1]=New_Img_G
-    New_Img[:,:,2]=New_Img_B
+    New_Img[:,:,0]=(1/255)*New_Img_R
+    New_Img[:,:,1]=(1/255)*New_Img_G
+    New_Img[:,:,2]=(1/255)*New_Img_B
+    New_Img_t=np.zeros([1,nbr_pix,3])
 
     New_Img=New_Img.reshape([row,col,3])
-    # MatX = ssp.csr_matrix.toarray(DX)
-    # Maty = ssp.csr_matrix.toarray(DY)
-    # MatAX = ssp.csr_matrix.toarray(AX)
-    # MatAY = ssp.csr_matrix.toarray(AY)
-    # MatLg = ssp.csr_matrix.toarray(Lg)
-    # r = Lg@Id@ax@ay@Lg
-    diff = img - New_Img
-    print(img.shape)
     print(New_Img.shape)
-    return New_Img / 255 ,ax,ay, diff / 255
+    print(New_Img_t.shape)
+    New_Img=New_Img
+    return New_Img
 
 #---------------------------------------------------------------
 
 img = extraction_image("../data/fala.jpg")
+img_t = img.transpose(1, 0, 2)
 # img=np.array([[[5,5,3],[4,5,6],[25,25,255]],
 #               [[2,5,3],[4,5,6],[5,55,25]],
 #               [[71,4,3],[4,54,6],[255,25,255]],
@@ -177,32 +139,33 @@ img = extraction_image("../data/fala.jpg")
 #               [[48,16,3],[41,5,6],[25,25,5]]])
 
 
-New_Img,ax,ay, diff=WLSFilter(epsilon, alpha, lbda, img)
+New_Img=WLSFilter(epsilon, alpha, lbda, img)
+New_Img_t=WLSFilter(epsilon, alpha, lbda, img_t)
+
+
 
 # print(ssp.csr_matrix.toarray(DX))
 # print("\n")
 # print(ssp.csr_matrix.toarray(DY))
 # print("\n")
 
-A = np.zeros((6,1))
-B = np.zeros((5,2))
+
 plt.figure("Image 1")
 plt.imshow(New_Img)
+plt.title("Smoothed Image")
+
+plt.figure("Image 4")
+plt.imshow(New_Img_t.transpose(1, 0, 2))
+plt.title("Smoothed Image")
+
+plt.figure("Image 5")
+plt.imshow(0.5 * New_Img_t.transpose(1, 0, 2) + 0.5 * New_Img)
 plt.title("Smoothed Image")
 
 plt.figure("Image 2")
 plt.imshow(img)
 plt.title("Original Image")
-
-plt.figure("Details")
-plt.imshow(diff)
-plt.title("Original Image")
-
-plt.figure("Details and image ")
-plt.imshow(5 * diff + New_Img)
-plt.title("Original Image")
 plt.show()
 
 end = time.time()
 print(end - start)
-
