@@ -2,6 +2,13 @@ import numpy as np
 import scipy.sparse as ssp
 from PIL import Image
 
+def extraction_image(nomFichier):
+    img = Image.open(nomFichier)
+    return np.array(img)
+
+def luminance(img):
+    return (.299 * img[:,:,0]) + (.587 * img[:,:,1]) + (.114 * img[:,:,2])
+
 def DX_matrix(nbr_pix):
     main_diag = np.ones(nbr_pix)
     side_diag = - np.ones(nbr_pix - 1)
@@ -10,23 +17,9 @@ def DX_matrix(nbr_pix):
     return DX
 
 def DY_matrix(nbr_pix, row):
-    ONE = np.ones(nbr_pix-row)
-    ZER = np.zeros(row)
-    main_diag = np.concatenate((ONE.T, ZER.T))
-    side_diag = - np.ones(nbr_pix-row)
-    diagonals=[main_diag,side_diag]
-    DY=ssp.csr_matrix(ssp.diags(diagonals, [0,row]))
+    diagonals=[np.concatenate((np.ones(nbr_pix - row).T, np.zeros(row).T)), - np.ones(nbr_pix - row)]
+    DY=ssp.csr_matrix(ssp.diags(diagonals, [0, row]))
     return DY
-
-def luminance(img):
-    R=img[:,:,0]
-    G=img[:,:,1]
-    B=img[:,:,2]
-    return (.299 * R) + (.587 * G) + (.114 * B)
-
-def extraction_image(nomFichier):
-    img = Image.open(nomFichier)
-    return np.array(img)
 
 def ax_coeffs(row,col,l,alpha,epsilon):
     derivx=np.zeros((row,col))
@@ -128,11 +121,12 @@ def WLSFilter(epsilon,alpha,lbda,img):
     New_Img_B=ssp.linalg.spsolve(H,np.transpose(img_vec[:,:,2]))
 
     New_Img=np.zeros([1,nbr_pix,3])
-    New_Img[:,:,0]=(1/255)*New_Img_R
-    New_Img[:,:,1]=(1/255)*New_Img_G
-    New_Img[:,:,2]=(1/255)*New_Img_B
+    New_Img[:,:,0]=New_Img_R
+    New_Img[:,:,1]=New_Img_G
+    New_Img[:,:,2]=New_Img_B
 
     New_Img=New_Img.reshape([row,col,3])
+    Details = img - New_Img
     # MatX = ssp.csr_matrix.toarray(DX)
     # Maty = ssp.csr_matrix.toarray(DY)
     # AY=ssp.csr_matrix(AY)
@@ -142,4 +136,4 @@ def WLSFilter(epsilon,alpha,lbda,img):
     # MatLg = ssp.csr_matrix.toarray(Lg)
     print("Done")
     # a = New_Img @ New_Img
-    return New_Img
+    return New_Img / 255, Details / 255

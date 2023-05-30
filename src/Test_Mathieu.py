@@ -21,7 +21,6 @@ img3 = Functions.extraction_image("../data/falaise.jpg")
 img4 = Functions.small_matrix_test()
 img5 = Functions.extraction_image("../data/fala.jpg")
 img6 = Functions.extraction_image("../data/test_ez.jpg")
-img5_bis = img5[:, :667, :]
 #---------------------------------------------------------------
 #---------------------------------------------------------------
 
@@ -31,13 +30,17 @@ start = time.time()
 epsilon=0.0001
 alpha=1.6
 lbda=3
+w_details = 5
 
 # Choice of the image
-print(img5_bis.shape)
-used_image=img5_bis
+
+def transform_to_square(img):
+    return img[:, :img.shape[0], :] if img.shape[0] < img.shape[1] else img[:img.shape[1], :, :]
+
+used_image=transform_to_square(img5)
 
 # Computation of the smoothed image
-New_Img=Functions.WLSFilter(epsilon, alpha, lbda/255, used_image)
+New_Img, Details=Functions.WLSFilter(epsilon, alpha, lbda/255, used_image)
 
 end = time.time()
 print(end - start)
@@ -54,4 +57,8 @@ plt.show()
 plt.subplot(121,sharex=ax1, sharey=ax1)
 plt.imshow(used_image)
 plt.title("Original Image")
+
+plt.figure("Detailed Picture")
+plt.imshow(New_Img + w_details * Details)
+plt.title("Detailed Image")
 plt.show()
