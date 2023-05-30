@@ -1,7 +1,6 @@
 import numpy as np
 import scipy.sparse as ssp
 from PIL import Image
-import time
 
 def small_matrix_test():
     img=np.zeros((3,4,3))

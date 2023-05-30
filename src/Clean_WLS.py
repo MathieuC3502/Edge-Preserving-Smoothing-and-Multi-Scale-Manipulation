@@ -1,11 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue May 16 10:31:04 2023
-
-@author: Mathieu Chesneau
-"""
-
-import numpy as np
 import matplotlib.pyplot as plt
 import time
 import Clean_Functions as Functions
