@@ -30,14 +30,14 @@ start = time.time()
 # Definition of the parameters
 epsilon=0.0001
 alpha=1.6
-lbda=0.1
+lbda=3
 
 # Choice of the image
 print(img5_bis.shape)
 used_image=img5_bis
 
 # Computation of the smoothed image
-New_Img=Functions.WLSFilter(epsilon, alpha, lbda, used_image)
+New_Img=Functions.WLSFilter(epsilon, alpha, lbda/255, used_image)
 
 end = time.time()
 print(end - start)

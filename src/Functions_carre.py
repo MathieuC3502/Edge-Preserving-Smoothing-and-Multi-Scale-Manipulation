@@ -2,24 +2,20 @@ import numpy as np
 import scipy.sparse as ssp
 from PIL import Image
 
-def DX_matrix(row,col):
-    nbr_pix = row*col
-    main_diag=np.ones((1,nbr_pix))
-    side_diag=-1*(np.ones((1,nbr_pix - 1)))
-    diagonals=[main_diag,side_diag]
-    base=ssp.diags(diagonals,[0,1],shape=(nbr_pix, nbr_pix))
-    base=ssp.csr_matrix(base)
-    return base
+def DX_matrix(nbr_pix):
+    main_diag = np.ones(nbr_pix)
+    side_diag = - np.ones(nbr_pix - 1)
+    diagonals = [main_diag.T, side_diag.T]
+    DX=ssp.csr_matrix(ssp.diags(diagonals, [0, 1]))
+    return DX
 
-def DY_matrix(row,col):
-    nbr_pix=row*col
-    ONE = np.ones((nbr_pix-row))
-    ZER = np.zeros((row))
-    main_diag=np.concatenate((ONE.T, ZER.T))
-    side_diag=-1*(np.ones([1,nbr_pix-row]))
+def DY_matrix(nbr_pix, row):
+    ONE = np.ones(nbr_pix-row)
+    ZER = np.zeros(row)
+    main_diag = np.concatenate((ONE.T, ZER.T))
+    side_diag = - np.ones(nbr_pix-row)
     diagonals=[main_diag,side_diag]
-    DY=ssp.diags(diagonals,[0,row],shape=(nbr_pix,nbr_pix))
-    DY=ssp.csr_matrix(DY)
+    DY=ssp.csr_matrix(ssp.diags(diagonals, [0,row]))
     return DY
 
 def luminance(img):
@@ -90,14 +86,14 @@ def WLSFilter(epsilon,alpha,lbda,img):
     #---------------------------------------------------------------
 
     print("Computation of DX Matrix")
-    DX=DX_matrix(row, col)
+    DX=DX_matrix(row*col)
 
     #---------------------------------------------------------------
     # Generation of the Dy matrix
     #---------------------------------------------------------------
 
     print("Conputation of DY Matrix")
-    DY=DY_matrix(row,col)
+    DY=DY_matrix(row*col, row)
 
     #---------------------------------------------------------------
     # Generation of the AX and AY matrixes
