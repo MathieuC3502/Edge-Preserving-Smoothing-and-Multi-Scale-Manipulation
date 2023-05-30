@@ -19,6 +19,10 @@ img9 = Functions.extraction_image("../data/city.jpg")
 img10 = Functions.extraction_image("../data/canyon.jpg")
 img11 = Functions.extraction_image("../data/mountains.jpg")
 
+#---------------------------------------------------------------
+# MAIN LOOP
+#---------------------------------------------------------------
+
 if __name__ == "__main__":
 
     # Definition of the parameters
@@ -27,8 +31,8 @@ if __name__ == "__main__":
     iter = 3
     lbda = 3
     # Definition of the images
-    curr_img = img2
-    # curr_img = Functions.limit_size(img5, 500)
+    curr_img = img5
+    # curr_img = Functions.limit_size(img7, 500)
 
     # Register for differents iterations
     reg_img = []
@@ -53,34 +57,32 @@ if __name__ == "__main__":
             smo_img, details = Functions.WLSFilter(epsilon, alpha, list_lbda[i] / 255, reg_img[-1])
         reg_img.append(smo_img)
         reg_det.append(details)
-        print("For iteration {} it tooks {} seconds".format(i + 1, time.time() - start))
+        print("For iteration {} it took {} seconds".format(i + 1, time.time() - start))
 
     coa_img = Functions.recreate_img(reg_img[-1], reg_det, reg_weigt)
+    
+#---------------------------------------------------------------
+# PLOTS
+#---------------------------------------------------------------
+    plt.figure()
 
-    # ax1=plt.subplot(132)
-    # ax1.imshow(New_Img)
-    # plt.title("Smoothed Image")
-    # plt.show()
-
-    # plt.subplot(131,sharex=ax1, sharey=ax1)
-    # plt.imshow(used_image)
-    # plt.title("Original Image")
-
-    # plt.subplot(133,sharex=ax1, sharey=ax1)
-    # plt.imshow(New_Img + w_details * Details)
-    # plt.title("Detailed Image")
-    # plt.show()
-
-    plt.figure("Original")
+    ax1=plt.subplot(211)
     plt.imshow(curr_img)
     plt.title("Original Image")
-    for i, img in enumerate(reg_img):
-        plt.figure("Smoothed {}".format(i + 1))
-        plt.imshow(img)
-        plt.title("Smoothed Image after iteration {}".format(i + 1))
-
-    plt.figure("Coarsed")
+    
+    plt.subplot(212,sharex=ax1, sharey=ax1)
     plt.imshow(coa_img)
     plt.title("Coarsed Image")
 
+    plt.show()
+    
+#---------------------------------------------------------------
+    
+    plt.figure()
+    
+    for i, img in enumerate(reg_img):
+        plt.subplot(iter,1,i+1)
+        plt.imshow(img)
+        plt.title("Smoothed Image after iteration {}".format(i + 1))
+        
     plt.show()
