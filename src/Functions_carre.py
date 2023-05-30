@@ -16,9 +16,9 @@ def DX_matrix(nbr_pix):
     DX=ssp.csr_matrix(ssp.diags(diagonals, [0, 1]))
     return DX
 
-def DY_matrix(nbr_pix, row):
+def DY_matrix(nbr_pix, row, col):
     diagonals=[np.concatenate((np.ones(nbr_pix - row).T, np.zeros(row).T)), - np.ones(nbr_pix - row)]
-    DY=ssp.csr_matrix(ssp.diags(diagonals, [0, row]))
+    DY=ssp.csr_matrix(ssp.diags(diagonals, [0, col]))
     return DY
 
 def ax_coeffs(row,col,l,alpha,epsilon):
@@ -86,7 +86,7 @@ def WLSFilter(epsilon,alpha,lbda,img):
     #---------------------------------------------------------------
 
     print("Conputation of DY Matrix")
-    DY=DY_matrix(row*col, row)
+    DY=DY_matrix(row*col, row, col)
 
     #---------------------------------------------------------------
     # Generation of the AX and AY matrixes
@@ -103,8 +103,6 @@ def WLSFilter(epsilon,alpha,lbda,img):
     #---------------------------------------------------------------
 
     print("Computation of Lg Matrix")
-    print(DX.shape)
-    print(AX.shape)
     Lg=(ssp.csr_matrix.transpose(DX)@AX@DX)+(ssp.csr_matrix.transpose(DY)@AY@DY)
 
     #---------------------------------------------------------------
