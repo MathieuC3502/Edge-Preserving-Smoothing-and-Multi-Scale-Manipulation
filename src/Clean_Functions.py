@@ -9,30 +9,46 @@ def small_matrix_test():
     img[:,:,2]=np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0]])
     return img
 
+def select_param(param, iter):
+    if type(param) is float or type(param) is int:
+        list_param = [param] * iter
+        print("Parameter set to {}".format(list_param))
+    elif len(param) == iter:
+        list_param = param.copy()
+        print("Parameter set to {}".format(list_param))
+    else:
+        list_param = [2] * iter
+        print("Error in the definition of the parameter, set to {}".format(list_param))
+    return list_param
+
 def transform_to_square(img):
     return img[:, :img.shape[0], :] if img.shape[0] < img.shape[1] else img[:img.shape[1], :, :]
 
 def limit_size(img, pix):
-    return img[:pix, :pix, :]
+    if img.shape[0] > pix:
+        img = img[:pix, :, :]
+    if img.shape[1] > pix:
+        img = img[:, :pix + 200, :]
+    return img
 
-def recreate_img(smo_img, list_of_details, weigts = None):
+def recreate_img(smo_img, list_of_details, weights = None):
     final_img = smo_img.copy()
-    if weigts is None:
-        print("Weigts all set to 1.2")
-        weigts = [1.2 for i in range(len(list_of_details))]
-    elif type(weigts) is float or type(weigts) is int:
-        print("Weigts set to {}".format(weigts))
-        weigts = [weigts for i in range(len(list_of_details))]
-    elif len(weigts) != len(list_of_details):
-        print("A mistake has been Done, retry to compute the right number of weigts, weigts set by default to 1.2")
-        weigts = [1.2 for i in range(len(list_of_details))]
-    elif len(weigts) == len(list_of_details): 
-        print("Weigts set to {}".format(weigts))
+    if weights is None:
+        print("Weights all set to 1.2")
+        weights = [1.2 for i in range(len(list_of_details))]
+    elif type(weights) is float or type(weights) is int:
+        print("Weights set to {}".format(weights))
+        weights = [weights for i in range(len(list_of_details))]
+    elif len(weights) != len(list_of_details):
+        print("A mistake has been Done, retry to compute the right number of weights, weights set by default to 1.2")
+        weights = [1.2 for i in range(len(list_of_details))]
+    elif len(weights) == len(list_of_details): 
+        print("Weights set to {}".format(weights))
     else:
-        print("Weigts set to 1.2 due to unknown variable")
-        weigts = [1.2 for i in range(len(list_of_details))]
+        print("Weights set to 1.2 due to unknown variable")
+        weights = [1.2 for i in range(len(list_of_details))]
     for i in range(len(list_of_details)):
-        final_img += weigts[i] * list_of_details[i]
+        final_img += weights[i] * list_of_details[i]
     return final_img
 
 def extraction_image(nomFichier):
@@ -47,7 +63,7 @@ def DX_matrix(nbr_pix):
     return ssp.csr_matrix(ssp.diags(diagonals, [0, 1]))
 
 def DY_matrix(row, col):
-    diagonals = [np.concatenate((np.ones((col - 1) * row).T, np.zeros(row).T)), - np.ones((col - 1) * row)]
+    diagonals = [np.concatenate((np.ones((col - 1) * row).T, np.zeros(row).T)), - np.ones((row - 1) * col)]
     return ssp.csr_matrix(ssp.diags(diagonals, [0, col]))
 
 def ax_coeffs(row, col, logL, alpha, epsilon):
@@ -65,28 +81,21 @@ def WLSFilter(epsilon,alpha,lbda,img):
 
     print("Starting iteration and filtering matrices")
 
-    # print("Computation of Log-Luminance")
     (row, col, RGB) = img.shape
     nbr_pix = col * row
     logL = np.log(luminance(img) + np.ones((row, col)))   # Log-Luminance plane of the image
 
-    # print("Computation of Ax/Ay coefficients")     
     ax_vec = ax_coeffs(row, col, logL, alpha, epsilon)
     ay_vec = ay_coeffs(row, col, logL, alpha, epsilon)
     img_vec = img.reshape(1, nbr_pix, 3)
 
-    # print("Computation of DX Matrix")
     DX = DX_matrix(row * col)
-
-    # print("Computation of DY Matrix")
     DY = DY_matrix(row, col)
 
-    # print("Computation of the AX/AY Matrixes")
     AX = ssp.diags(ax_vec,[0])
     AY = ssp.diags(ay_vec,[0])
     Id = ssp.identity(AX.shape[1])
 
-    # print("Computation of Lg Matrix")
     Lg = ssp.csr_matrix.transpose(DX)@AX@DX + ssp.csr_matrix.transpose(DY)@AY@DY 
 
     #---------------------------------------------------------------
@@ -96,7 +105,6 @@ def WLSFilter(epsilon,alpha,lbda,img):
     H = Id + (lbda * Lg)
     New_Img = np.zeros((1, nbr_pix, 3))
 
-    print("Creating the smoothed image")
     New_Img[:,:,0] = ssp.linalg.spsolve(H, np.transpose(img_vec[:,:,0]))
 
     New_Img[:,:,1] = ssp.linalg.spsolve(H, np.transpose(img_vec[:,:,1]))

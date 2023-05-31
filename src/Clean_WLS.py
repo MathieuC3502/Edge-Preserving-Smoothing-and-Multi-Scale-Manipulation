@@ -18,6 +18,11 @@ img8 = Functions.extraction_image("../data/forest.jpg")
 img9 = Functions.extraction_image("../data/city.jpg")
 img10 = Functions.extraction_image("../data/canyon.jpg")
 img11 = Functions.extraction_image("../data/mountains.jpg")
+img7_cut = Functions.extraction_image("../data/depth_sea_cut.jpg")
+img8_cut = Functions.extraction_image("../data/forest_cut.jpg")
+img9_cut = Functions.extraction_image("../data/city_cut.jpg")
+img10_cut = Functions.extraction_image("../data/canyon_cut.jpg")
+img11_cut = Functions.extraction_image("../data/mountains_cut.jpg")
 
 #---------------------------------------------------------------
 # MAIN LOOP
@@ -27,62 +32,118 @@ if __name__ == "__main__":
 
     # Definition of the parameters
     epsilon = 0.0001
-    alpha = 1.6
-    iter = 3
-    lbda = 3
+    alpha = 2
+    iter = 1
+    lbda = 6
+    # lbda = [2, 4, 8, 16]
     # Definition of the images
-    curr_img = img5
-    # curr_img = Functions.limit_size(img7, 500)
+    # curr_img = img5
+    curr_img = Functions.limit_size(img9_cut, 1700)
 
     # Register for differents iterations
     reg_img = []
     reg_det = []
 
-    # List of weigts
-    reg_weigt = [0.5, 1, 10]
+    # List of weights
+    # reg_weight = [3, 0, 0, 0]
+    reg_weight_0 = 0
+    reg_weight_1 = 0.5
+    reg_weight_2 = 1
+    reg_weight_3 = 2
+    reg_weight_4 = 4
+    reg_weight_5 = 8
+    reg_weight_6 = 16
     start = time.time()
 
-    # Computation of the smoothed image
-    if type(lbda) is float or type(lbda) is int:
-        list_lbda = [lbda] * iter
-    elif len(lbda) == iter:
-        list_lbda = lbda.copy()
-    else:
-        print("Error in the definition of the lambda parameter, lambda set to 2")
-        list_lbda = [2] * iter
+   # Computation of the smoothed image
+    list_lbda = Functions.select_param(lbda, iter)
+    list_alpha = Functions.select_param(alpha, iter)
     for i in range(iter):
         if i == 0:
-            smo_img, details = Functions.WLSFilter(epsilon, alpha, list_lbda[i] / 255, curr_img / 255)
+            smo_img, details = Functions.WLSFilter(epsilon, list_alpha[i], list_lbda[i] / 255, curr_img / 255)
         else:
-            smo_img, details = Functions.WLSFilter(epsilon, alpha, list_lbda[i] / 255, reg_img[-1])
+            smo_img, details = Functions.WLSFilter(epsilon, list_alpha[i], list_lbda[i] / 255, reg_img[-1])
         reg_img.append(smo_img)
         reg_det.append(details)
-        print("For iteration {} it took {} seconds".format(i + 1, time.time() - start))
+        print("For iteration {} it tooks {} seconds".format(i + 1, time.time() - start))
 
-    coa_img = Functions.recreate_img(reg_img[-1], reg_det, reg_weigt)
-    
+    # Computation of the coarsed image after iterations
+    # fin_img = Functions.recreate_img(reg_img[-1], reg_det, reg_weight)
+
+    # Computation of the coarsed image at defferent weight
+    fin_img_0 = Functions.recreate_img(reg_img[-1], reg_det, reg_weight_0)
+    fin_img_1 = Functions.recreate_img(reg_img[-1], reg_det, reg_weight_1)
+    fin_img_2 = Functions.recreate_img(reg_img[-1], reg_det, reg_weight_2)
+    fin_img_3 = Functions.recreate_img(reg_img[-1], reg_det, reg_weight_3)
+    fin_img_4 = Functions.recreate_img(reg_img[-1], reg_det, reg_weight_4)
+    fin_img_5 = Functions.recreate_img(reg_img[-1], reg_det, reg_weight_5)
+    fin_img_6 = Functions.recreate_img(reg_img[-1], reg_det, reg_weight_6)
+
+    end_time = time.time() - start
 #---------------------------------------------------------------
 # PLOTS
 #---------------------------------------------------------------
-    plt.figure()
+    # plt.figure()
 
-    ax1=plt.subplot(211)
-    plt.imshow(curr_img)
-    plt.title("Original Image")
-    
-    plt.subplot(212,sharex=ax1, sharey=ax1)
-    plt.imshow(coa_img)
-    plt.title("Coarsed Image")
+    # ax1=plt.subplot(121)
+    # plt.imshow(curr_img)
+    # plt.title("Original Image")
 
-    plt.show()
+    # plt.show()
     
 #---------------------------------------------------------------
     
-    plt.figure()
+    # plt.figure()
     
-    for i, img in enumerate(reg_img):
-        plt.subplot(iter,1,i+1)
-        plt.imshow(img)
-        plt.title("Smoothed Image after iteration {}".format(i + 1))
-        
+    # for i, img in enumerate(reg_img):
+    #     plt.subplot(iter, 2, 2 * i + 1)
+    #     plt.imshow(img)
+    #     plt.title("Smoothed Image after iteration {}".format(i + 1))
+    #     plt.subplot(iter, 2, 2 * i + 2)
+    #     plt.imshow(40 * (0.299 * reg_det[i][:, :, 0] +  0.587 * reg_det[i][:, :, 1] + 0.119 * reg_det[i][:, :, 2]), cmap = 'gray')
+    #     plt.title("Details of Image after iteration {}".format(i + 1))
+    # plt.figure("Image Origine")
+    # plt.imshow(curr_img)
+    # plt.title("Image d'origine")
+    # for i in range(4):
+    #     plt.subplot(2,2,i+1)
+    #     plt.imshow(reg_img[i])
+    #     plt.title("Lambda = {}, Alpha = {}".format(list_lbda[i], list_alpha[i]))
+    # for i in range(4):
+    #     plt.figure("Image {}".format(i + 4))
+    #     plt.imshow(reg_img[i])
+    #     plt.title("Lambda = {}, Alpha = {}".format(list_lbda[i], list_alpha[i]))
+    # plt.figure()
+    # for i in range(4):
+    #     plt.subplot(2,2,i+1)
+    #     plt.imshow(40 * (0.299 * reg_det[i][:, :, 0] +  0.587 * reg_det[i][:, :, 1] + 0.119 * reg_det[i][:, :, 2]), cmap = 'gray')
+    #     plt.title("Lambda = {}, Alpha = {}".format(list_lbda[i], list_alpha[i]))
+    # for i in range(4):
+    #     plt.figure("Image {}".format(i))
+    #     plt.imshow(40 * (0.299 * reg_det[i][:, :, 0] +  0.587 * reg_det[i][:, :, 1] + 0.119 * reg_det[i][:, :, 2]), cmap = 'gray')
+    #     plt.title("Lambda = {}, Alpha = {}".format(list_lbda[i], list_alpha[i]))
+    # plt.figure("Time of running")
+    # plt.imshow(reg_img[i])
+    # plt.title("Lambda: {}, Alpha: {}, Time: {}s, Shape = {}x{}".format(list_lbda[i], list_alpha[i], int(100 *end_time) / 100, shape[0], shape[1]))
+    plt.figure("Final Image 0")
+    plt.imshow(fin_img_0)
+    plt.title("Final Image 0")
+    plt.figure("Final Image 0.5")
+    plt.imshow(fin_img_1)
+    plt.title("Final Image 0.5")
+    plt.figure("Final Image 1")
+    plt.imshow(fin_img_2)
+    plt.title("Final Image 1")
+    plt.figure("Final Image 2")
+    plt.imshow(fin_img_3)
+    plt.title("Final Image 2")
+    plt.figure("Final Image 4")
+    plt.imshow(fin_img_4)
+    plt.title("Final Image 4")
+    plt.figure("Final Image 8")
+    plt.imshow(fin_img_5)
+    plt.title("Final Image 8")
+    plt.figure("Final Image 16")
+    plt.imshow(fin_img_6)
+    plt.title("Final Image 16")
     plt.show()
