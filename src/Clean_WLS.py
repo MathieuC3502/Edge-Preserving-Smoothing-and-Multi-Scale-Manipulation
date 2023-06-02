@@ -37,8 +37,7 @@ if __name__ == "__main__":
     lbda = 6
     # lbda = [2, 4, 8, 16]
     # Definition of the images
-    # curr_img = img5
-    curr_img = Functions.limit_size(img9_cut, 1700)
+    curr_img = Functions.limit_size(img5, 500)
 
     # Register for differents iterations
     reg_img = []
@@ -49,6 +48,7 @@ if __name__ == "__main__":
     reg_weight_0 = 0
     reg_weight_1 = 0.5
     reg_weight_2 = 1
+    reg_weight_2a = 1.5
     reg_weight_3 = 2
     reg_weight_4 = 4
     reg_weight_5 = 8
@@ -56,13 +56,14 @@ if __name__ == "__main__":
     start = time.time()
 
    # Computation of the smoothed image
+
     list_lbda = Functions.select_param(lbda, iter)
     list_alpha = Functions.select_param(alpha, iter)
     for i in range(iter):
         if i == 0:
-            smo_img, details = Functions.WLSFilter(epsilon, list_alpha[i], list_lbda[i] / 255, curr_img / 255)
+            smo_img, details = Functions.WLS_iteration(epsilon, list_alpha[i], list_lbda[i] / 255, curr_img / 255)
         else:
-            smo_img, details = Functions.WLSFilter(epsilon, list_alpha[i], list_lbda[i] / 255, reg_img[-1])
+            smo_img, details = Functions.WLS_iteration(epsilon, list_alpha[i], list_lbda[i] / 255, reg_img[-1])
         reg_img.append(smo_img)
         reg_det.append(details)
         print("For iteration {} it tooks {} seconds".format(i + 1, time.time() - start))
@@ -74,6 +75,7 @@ if __name__ == "__main__":
     fin_img_0 = Functions.recreate_img(reg_img[-1], reg_det, reg_weight_0)
     fin_img_1 = Functions.recreate_img(reg_img[-1], reg_det, reg_weight_1)
     fin_img_2 = Functions.recreate_img(reg_img[-1], reg_det, reg_weight_2)
+    fin_img_2a = Functions.recreate_img(reg_img[-1], reg_det, reg_weight_2a)
     fin_img_3 = Functions.recreate_img(reg_img[-1], reg_det, reg_weight_3)
     fin_img_4 = Functions.recreate_img(reg_img[-1], reg_det, reg_weight_4)
     fin_img_5 = Functions.recreate_img(reg_img[-1], reg_det, reg_weight_5)
@@ -88,13 +90,12 @@ if __name__ == "__main__":
     # ax1=plt.subplot(121)
     # plt.imshow(curr_img)
     # plt.title("Original Image")
-
-    # plt.show()
     
 #---------------------------------------------------------------
     
     # plt.figure()
     
+    ### To plot smoothed image and detailed images for each iteration
     # for i, img in enumerate(reg_img):
     #     plt.subplot(iter, 2, 2 * i + 1)
     #     plt.imshow(img)
@@ -102,29 +103,39 @@ if __name__ == "__main__":
     #     plt.subplot(iter, 2, 2 * i + 2)
     #     plt.imshow(40 * (0.299 * reg_det[i][:, :, 0] +  0.587 * reg_det[i][:, :, 1] + 0.119 * reg_det[i][:, :, 2]), cmap = 'gray')
     #     plt.title("Details of Image after iteration {}".format(i + 1))
-    # plt.figure("Image Origine")
-    # plt.imshow(curr_img)
-    # plt.title("Image d'origine")
+
+    # To plot smoothed images with 4 iterations only 
+
     # for i in range(4):
     #     plt.subplot(2,2,i+1)
     #     plt.imshow(reg_img[i])
     #     plt.title("Lambda = {}, Alpha = {}".format(list_lbda[i], list_alpha[i]))
-    # for i in range(4):
+    
+    # To plot only smoothed images alone
+    # for i in range(iter):
     #     plt.figure("Image {}".format(i + 4))
     #     plt.imshow(reg_img[i])
     #     plt.title("Lambda = {}, Alpha = {}".format(list_lbda[i], list_alpha[i]))
     # plt.figure()
+
+    # To plot details of images with 4 iterations only 
     # for i in range(4):
     #     plt.subplot(2,2,i+1)
     #     plt.imshow(40 * (0.299 * reg_det[i][:, :, 0] +  0.587 * reg_det[i][:, :, 1] + 0.119 * reg_det[i][:, :, 2]), cmap = 'gray')
     #     plt.title("Lambda = {}, Alpha = {}".format(list_lbda[i], list_alpha[i]))
+    
+    # To plot only details of images alone
     # for i in range(4):
     #     plt.figure("Image {}".format(i))
     #     plt.imshow(40 * (0.299 * reg_det[i][:, :, 0] +  0.587 * reg_det[i][:, :, 1] + 0.119 * reg_det[i][:, :, 2]), cmap = 'gray')
     #     plt.title("Lambda = {}, Alpha = {}".format(list_lbda[i], list_alpha[i]))
+    
+    # To look at timings 
     # plt.figure("Time of running")
     # plt.imshow(reg_img[i])
     # plt.title("Lambda: {}, Alpha: {}, Time: {}s, Shape = {}x{}".format(list_lbda[i], list_alpha[i], int(100 *end_time) / 100, shape[0], shape[1]))
+    
+    # To look at images with details 
     plt.figure("Final Image 0")
     plt.imshow(fin_img_0)
     plt.title("Final Image 0")
@@ -134,6 +145,9 @@ if __name__ == "__main__":
     plt.figure("Final Image 1")
     plt.imshow(fin_img_2)
     plt.title("Final Image 1")
+    plt.figure("Final Image 1.5")
+    plt.imshow(fin_img_2a)
+    plt.title("Final Image 1.5")
     plt.figure("Final Image 2")
     plt.imshow(fin_img_3)
     plt.title("Final Image 2")

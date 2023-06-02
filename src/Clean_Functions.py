@@ -77,7 +77,7 @@ def ay_coeffs(row, col, logL, alpha, epsilon):
     return ay.reshape(1, row * col)
 
 
-def WLSFilter(epsilon,alpha,lbda,img):
+def WLS_iteration(epsilon,alpha,lbda,img):
 
     print("Starting iteration and filtering matrices")
 
