@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import time
-import Clean_Functions as Functions
+import Functions as Functions
 
 #---------------------------------------------------------------
 # LOADING OF THE DIFFERENT TEST IMAGES
