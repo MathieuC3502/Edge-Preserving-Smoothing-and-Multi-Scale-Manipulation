@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import time
 import Clean_Functions as Functions
+import numpy as np
 
 #---------------------------------------------------------------
 # LOADING OF THE DIFFERENT TEST IMAGES
@@ -24,140 +25,90 @@ img9_cut = Functions.extraction_image("../data/city_cut.jpg")
 img10_cut = Functions.extraction_image("../data/canyon_cut.jpg")
 img11_cut = Functions.extraction_image("../data/mountains_cut.jpg")
 
+"""
+Parameters:
+- epsilon: float, default = 0.0001
+    The threshold for the convergence of the algorithm
+- iter: int, default = 3
+    The number of iterations
+- alpha: float or list of float, default = 1.8, can be a list if iterations (ex: for 3 iterations, in a list, alpha = [1, 2, 1.6])
+    The different alpha values for the different iterations
+- lbda: float or list of float, default = 0.35, can be a list if iterations (ex: for 3 iterations, in a list, lambda = [1, 2, 1.6])
+    The lambda value for the algorithm
+- weight: float, list of float or list of list of float, default = 1.2 (can be a list if there are iterations, like: weight = [2, 3, 5] for 3 iterations, and weight each details of iteration)
+    Linked to the display parameter
+    The weight for the details in iterations
+- display: str, default = "smoothed detailed full smoothed full final 3"
+    The different images to display
+    "smoothed": the smoothed image  
+    "detailed": the detailed image
+    "full": the full option show all iterations of detail or smoothed add with a space after detailed or smoothed
+    "final": the final image, with weights and X final images if add a int after. For ex: affichage = "final 3", means we want 3 final ones. We can change weights of each one by using weight = [[3, 2], [1.2, 0], [0.2, 5]] for example if we want 3 images, in 2 iterations. 
+    for "final 2" with iter = 3 for ex can also be weights = [1.2, 3] eqivlent to [[1.2, 1.2, 1.2], [3, 3, 3]] or [2, [2, 3, 0.1]] eqivalent to [[2, 2, 2], [2, 3, 0.1]]
+- comparison: str, default = "None"
+    The filtered images to compare with the comapared one, but currently only the original image is available, need to add the comparison to gaussian or BLF filters
+
+Also possible to use the class ParamClassFilter
+
+Here are examples below:    
+"""
+
+#---------------------------------------------------------------
+# TEST 1
+#---------------------------------------------------------------
+epsilon1 = 0.0001
+alpha1 = [1.8, 1.2, 1.6]
+iter1 = 3
+lbda1 = 0.35
+display1 = "smoothed detailed full final 3"
+comparaison1 = "original"
+weight1 = [[1.2, 0, 1], [0, 5, 10], [5, 5, 4]]
+curr_img1 = img1
+paramFilter1 = Functions.ParamClassFilter(iter1, alpha1, lbda1, weight1, display1, comparaison1, epsilon1)
+
+#---------------------------------------------------------------
+# TEST 2
+#---------------------------------------------------------------
+epsilon2 = 0.0001
+alpha2 = 1.5
+iter2 = 5
+lbda2 = 0.3
+display2 = "final 4"
+comparaison2 = None
+weight2 = [1.2, [0, 5, 10, 0, 0], [3, 2, 5, 5, 4], 5]
+curr_img2 = Functions.limit_size(img9_cut, 300)
+paramFilter2 = Functions.ParamClassFilter(iter2, alpha2, lbda2, weight2, display2, comparaison2, epsilon2)
+
+#---------------------------------------------------------------
+# TEST 3
+#---------------------------------------------------------------
+
+epsilon3 = 0.0001
+alpha3 = 1.5
+iter3 = 1
+lbda3 = 0.3
+display3 = "final"
+comparaison3 = None
+weight3 = 1.3
+curr_img3 = Functions.limit_size(img10_cut, 300)
+paramFilter3 = Functions.ParamClassFilter(iter3, alpha3, lbda3, weight3, display3, comparaison3, epsilon3)
+#---------------------------------------------------------------
+# TEST 4
+#---------------------------------------------------------------
+epsilon4 = 0.0001
+alpha4 = 2
+iter4 = 3
+lbda4 = 0.3
+display4 = "smoothed detailed full"
+comparaison4 = None
+weight4 = 1.5
+curr_img4 = Functions.limit_size(img8_cut, 600)
+paramFilter4 = Functions.ParamClassFilter(iter4, alpha4, lbda4, weight4, display4, comparaison4, epsilon4)
+
 #---------------------------------------------------------------
 # MAIN LOOP
 #---------------------------------------------------------------
 
 if __name__ == "__main__":
-
-    # Definition of the parameters
-    epsilon = 0.0001
-    alpha = 2
-    iter = 1
-    lbda = 6
-    # lbda = [2, 4, 8, 16]
-    # Definition of the images
-    curr_img = Functions.limit_size(img5, 500)
-
-    # Register for differents iterations
-    reg_img = []
-    reg_det = []
-
-    # List of weights
-    # reg_weight = [3, 0, 0, 0]
-    reg_weight_0 = 0
-    reg_weight_1 = 0.5
-    reg_weight_2 = 1
-    reg_weight_2a = 1.5
-    reg_weight_3 = 2
-    reg_weight_4 = 4
-    reg_weight_5 = 8
-    reg_weight_6 = 16
-    start = time.time()
-
-   # Computation of the smoothed image
-
-    list_lbda = Functions.select_param(lbda, iter)
-    list_alpha = Functions.select_param(alpha, iter)
-    for i in range(iter):
-        if i == 0:
-            smo_img, details = Functions.WLS_iteration(epsilon, list_alpha[i], list_lbda[i] / 255, curr_img / 255)
-        else:
-            smo_img, details = Functions.WLS_iteration(epsilon, list_alpha[i], list_lbda[i] / 255, reg_img[-1])
-        reg_img.append(smo_img)
-        reg_det.append(details)
-        print("For iteration {} it tooks {} seconds".format(i + 1, time.time() - start))
-
-    # Computation of the coarsed image after iterations
-    # fin_img = Functions.recreate_img(reg_img[-1], reg_det, reg_weight)
-
-    # Computation of the coarsed image at defferent weight
-    fin_img_0 = Functions.recreate_img(reg_img[-1], reg_det, reg_weight_0)
-    fin_img_1 = Functions.recreate_img(reg_img[-1], reg_det, reg_weight_1)
-    fin_img_2 = Functions.recreate_img(reg_img[-1], reg_det, reg_weight_2)
-    fin_img_2a = Functions.recreate_img(reg_img[-1], reg_det, reg_weight_2a)
-    fin_img_3 = Functions.recreate_img(reg_img[-1], reg_det, reg_weight_3)
-    fin_img_4 = Functions.recreate_img(reg_img[-1], reg_det, reg_weight_4)
-    fin_img_5 = Functions.recreate_img(reg_img[-1], reg_det, reg_weight_5)
-    fin_img_6 = Functions.recreate_img(reg_img[-1], reg_det, reg_weight_6)
-
-    end_time = time.time() - start
-#---------------------------------------------------------------
-# PLOTS
-#---------------------------------------------------------------
-    # plt.figure()
-
-    # ax1=plt.subplot(121)
-    # plt.imshow(curr_img)
-    # plt.title("Original Image")
-    
-#---------------------------------------------------------------
-    
-    # plt.figure()
-    
-    ### To plot smoothed image and detailed images for each iteration
-    # for i, img in enumerate(reg_img):
-    #     plt.subplot(iter, 2, 2 * i + 1)
-    #     plt.imshow(img)
-    #     plt.title("Smoothed Image after iteration {}".format(i + 1))
-    #     plt.subplot(iter, 2, 2 * i + 2)
-    #     plt.imshow(40 * (0.299 * reg_det[i][:, :, 0] +  0.587 * reg_det[i][:, :, 1] + 0.119 * reg_det[i][:, :, 2]), cmap = 'gray')
-    #     plt.title("Details of Image after iteration {}".format(i + 1))
-
-    # To plot smoothed images with 4 iterations only 
-
-    # for i in range(4):
-    #     plt.subplot(2,2,i+1)
-    #     plt.imshow(reg_img[i])
-    #     plt.title("Lambda = {}, Alpha = {}".format(list_lbda[i], list_alpha[i]))
-    
-    # To plot only smoothed images alone
-    # for i in range(iter):
-    #     plt.figure("Image {}".format(i + 4))
-    #     plt.imshow(reg_img[i])
-    #     plt.title("Lambda = {}, Alpha = {}".format(list_lbda[i], list_alpha[i]))
-    # plt.figure()
-
-    # To plot details of images with 4 iterations only 
-    # for i in range(4):
-    #     plt.subplot(2,2,i+1)
-    #     plt.imshow(40 * (0.299 * reg_det[i][:, :, 0] +  0.587 * reg_det[i][:, :, 1] + 0.119 * reg_det[i][:, :, 2]), cmap = 'gray')
-    #     plt.title("Lambda = {}, Alpha = {}".format(list_lbda[i], list_alpha[i]))
-    
-    # To plot only details of images alone
-    # for i in range(4):
-    #     plt.figure("Image {}".format(i))
-    #     plt.imshow(40 * (0.299 * reg_det[i][:, :, 0] +  0.587 * reg_det[i][:, :, 1] + 0.119 * reg_det[i][:, :, 2]), cmap = 'gray')
-    #     plt.title("Lambda = {}, Alpha = {}".format(list_lbda[i], list_alpha[i]))
-    
-    # To look at timings 
-    # plt.figure("Time of running")
-    # plt.imshow(reg_img[i])
-    # plt.title("Lambda: {}, Alpha: {}, Time: {}s, Shape = {}x{}".format(list_lbda[i], list_alpha[i], int(100 *end_time) / 100, shape[0], shape[1]))
-    
-    # To look at images with details 
-    plt.figure("Final Image 0")
-    plt.imshow(fin_img_0)
-    plt.title("Final Image 0")
-    plt.figure("Final Image 0.5")
-    plt.imshow(fin_img_1)
-    plt.title("Final Image 0.5")
-    plt.figure("Final Image 1")
-    plt.imshow(fin_img_2)
-    plt.title("Final Image 1")
-    plt.figure("Final Image 1.5")
-    plt.imshow(fin_img_2a)
-    plt.title("Final Image 1.5")
-    plt.figure("Final Image 2")
-    plt.imshow(fin_img_3)
-    plt.title("Final Image 2")
-    plt.figure("Final Image 4")
-    plt.imshow(fin_img_4)
-    plt.title("Final Image 4")
-    plt.figure("Final Image 8")
-    plt.imshow(fin_img_5)
-    plt.title("Final Image 8")
-    plt.figure("Final Image 16")
-    plt.imshow(fin_img_6)
-    plt.title("Final Image 16")
-    plt.show()
+    # Functions.WLS_full(curr_img1, iter = iter1, alpha = alpha1, lbda = lbda1, weight = weight1, display = display1, comparaison = comparaison1, epsilon = epsilon1)
+    Functions.WLS_full(curr_img1, param = paramFilter1)
