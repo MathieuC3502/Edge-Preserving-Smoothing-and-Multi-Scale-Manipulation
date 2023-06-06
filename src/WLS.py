@@ -1,7 +1,11 @@
 import matplotlib.pyplot as plt
 import time
+<<<<<<< HEAD:src/Clean_WLS.py
 import Clean_Functions as Functions
 import numpy as np
+=======
+import Functions as Functions
+>>>>>>> 8f5ba20709ad9c21a83dde83ac6219004a9e9010:src/WLS.py
 
 #---------------------------------------------------------------
 # LOADING OF THE DIFFERENT TEST IMAGES
@@ -109,6 +113,52 @@ paramFilter4 = Functions.ParamClassFilter(iter4, alpha4, lbda4, weight4, display
 # MAIN LOOP
 #---------------------------------------------------------------
 
+<<<<<<< HEAD:src/Clean_WLS.py
 if __name__ == "__main__":
     # Functions.WLS_full(curr_img1, iter = iter1, alpha = alpha1, lbda = lbda1, weight = weight1, display = display1, comparaison = comparaison1, epsilon = epsilon1)
     Functions.WLS_full(curr_img1, param = paramFilter1)
+=======
+    # To plot details of images with 4 iterations only 
+    # for i in range(4):
+    #     plt.subplot(2,2,i+1)
+    #     plt.imshow(40 * (0.299 * reg_det[i][:, :, 0] +  0.587 * reg_det[i][:, :, 1] + 0.119 * reg_det[i][:, :, 2]), cmap = 'gray')
+    #     plt.title("Lambda = {}, Alpha = {}".format(list_lbda[i], list_alpha[i]))
+    
+    # To plot only details of images alone
+    # for i in range(4):
+    #     plt.figure("Image {}".format(i))
+    #     plt.imshow(40 * (0.299 * reg_det[i][:, :, 0] +  0.587 * reg_det[i][:, :, 1] + 0.119 * reg_det[i][:, :, 2]), cmap = 'gray')
+    #     plt.title("Lambda = {}, Alpha = {}".format(list_lbda[i], list_alpha[i]))
+    
+    # To look at timings 
+    # plt.figure("Time of running")
+    # plt.imshow(reg_img[i])
+    # plt.title("Lambda: {}, Alpha: {}, Time: {}s, Shape = {}x{}".format(list_lbda[i], list_alpha[i], int(100 *end_time) / 100, shape[0], shape[1]))
+    
+    # To look at images with details 
+    plt.figure("Final Image 0")
+    plt.imshow(fin_img_0)
+    plt.title("Final Image 0")
+    plt.figure("Final Image 0.5")
+    plt.imshow(fin_img_1)
+    plt.title("Final Image 0.5")
+    plt.figure("Final Image 1")
+    plt.imshow(fin_img_2)
+    plt.title("Final Image 1")
+    plt.figure("Final Image 1.5")
+    plt.imshow(fin_img_2a)
+    plt.title("Final Image 1.5")
+    plt.figure("Final Image 2")
+    plt.imshow(fin_img_3)
+    plt.title("Final Image 2")
+    plt.figure("Final Image 4")
+    plt.imshow(fin_img_4)
+    plt.title("Final Image 4")
+    plt.figure("Final Image 8")
+    plt.imshow(fin_img_5)
+    plt.title("Final Image 8")
+    plt.figure("Final Image 16")
+    plt.imshow(fin_img_6)
+    plt.title("Final Image 16")
+    plt.show()
+>>>>>>> 8f5ba20709ad9c21a83dde83ac6219004a9e9010:src/WLS.py
